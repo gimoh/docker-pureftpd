@@ -17,7 +17,7 @@ Launch:
 Add users:
 
     docker exec -it ftpd sh -l
-    pure-pw useradd bob -u ftp -d ~ftp/./bob -m
+    adduser-ftp bob -m
 
 ### Entrypoint
 
@@ -83,7 +83,7 @@ PURE_USERS:
 > matters when chaining authentication methods as each will be tried in
 > the same order they were specified.
 
-PURE_VIRT_USER_HOME_PATTERN (default: `/srv/ftp/./@USER@`):
+PURE_VIRT_USER_HOME_PATTERN (default: `/srv/ftp/@USER@/./`):
 > Pattern for path to home directories of virtual users; this is used
 > by adduser-ftp script when creating virtual FTP users, it will set
 > the home directory of a user to this value (with `@USER@` replaced
@@ -142,3 +142,27 @@ Run with LDAP users only and auto-create home directories:
 
 You need to have a file `ldap.conf` in `/etc/pureftpd` volume that
 defines LDAP server connection details.
+
+### Adding virtual users
+
+Generally you can add virtual users online from a shell started with:
+
+    docker exec -it ftpd sh -l
+
+The image contains an `adduser-ftp` script that wraps Pure-FTPds
+`pure-pw useradd`, setting mapped system user and home directory
+according to image conventions and passes remaining options as-is.  The
+usage is: `adduser-ftp USERNAME [PURE_PW_USERADD_OPTIONS...]`.
+
+E.g. this creates a user 'bob' mapped to system user 'ftpv', with home
+directory set according to `PURE_VIRT_USER_HOME_PATTERN` (defaulting to
+`/srv/ftp/bob/./`) and commits the change to the indexed database:
+
+    adduser-ftp bob -m
+
+i.e. it is equivalent to:
+
+    pure-pw useradd bob -u ftpv -d /srv/ftp/bob -m
+
+You can add users with `pure-pw useradd` directly but you'll need to
+make sure to set system user and create any necessary directories.

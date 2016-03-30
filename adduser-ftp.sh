@@ -1,3 +1,4 @@
+#!/bin/sh
 # docker-pureftpd
 # Copyright (C) 2016  gimoh
 # 
@@ -14,21 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM alpine:3.3
-MAINTAINER gimoh <gimoh@bitmessage.ch>
 
-RUN printf '%s\n' \
-      '@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing' \
-      >> /etc/apk/repositories \
-    && apk add --update pure-ftpd@testing=1.0.42-r0 && rm -rf /var/cache/apk/*
+set -e
 
-# user ftpv and /srv/ftp for virtual users, user ftp and /var/lib/ftp
-# for anonymous; these are separate so anonymous cannot read/write
-# virtual users' files (if both enabled)
-RUN adduser -D -h /dev/null -s /etc ftpv \
-    && install -d -o root -g root -m 755 ~ftp /srv/ftp
+: ${PURE_VIRT_USER_HOME_PATTERN:=/srv/ftp/@USER@/./}
 
-COPY dkr-init.sh /usr/local/sbin/dkr-init
-COPY adduser-ftp.sh /usr/local/bin/adduser-ftp
+u_name="${1:?specify username}"
+u_home="${PURE_VIRT_USER_HOME_PATTERN//@USER@/${u_name}}"
+shift
 
-ENTRYPOINT ["/usr/local/sbin/dkr-init"]
+exec /usr/bin/pure-pw useradd "${u_name}" -u ftpv -D "${u_home}" "$@"
