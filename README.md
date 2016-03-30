@@ -1,3 +1,5 @@
+[![docker image](https://img.shields.io/docker/stars/gimoh/pureftpd.svg)](https://hub.docker.com/r/gimoh/pureftpd/)
+
 # docker-pureftpd
 Pure-FTPD in a docker container
 
