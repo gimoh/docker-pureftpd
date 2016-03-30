@@ -127,7 +127,7 @@ Note that it's better to also use `PURE_VIRT_USER_HOME_PATTERN` like:
       gimoh/pureftpd \
       -j
 
-Also note you need to add users (as in 'Basic usage').
+Also note you need to add users (as in [Basic usage](#basic-usage)).
 
 ##### LDAP only
 
