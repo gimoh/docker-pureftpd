@@ -45,6 +45,14 @@ PURE_EXTAUTH_SOCKET:
 > PURE_USERS=extauth; see Pure-FTPd README.Authentication-Modules for
 > more info about external authentication
 
+PURE_IN_CLOUD:
+> Use cloud environment to determine details of passive operation (e.g.
+> public IP, ports, etc.); the following values are supported:
+>
+> - docker: uses `DOCKERCLOUD_CONTAINER_FQDN` variable as passive IP
+>   address, unfortunately doesn't support detemining ports
+>   automatically yet so `-p` still needs to be passed in
+
 PURE_LDAP_CONFIG (default: `${PURE_CONFDIR}/ldap.conf`):
 > Path to LDAP config file for use with PURE_USERS=ldap; see Pure-FTPd
 > README.LDAP for more info about LDAP directories
@@ -168,3 +176,36 @@ i.e. it is equivalent to:
 
 You can add users with `pure-pw useradd` directly but you'll need to
 make sure to set system user and create any necessary directories.
+
+### Passive FTP ports
+
+If you want the FTP service to be accessible from outside the host with
+the bridge networking, you'll need to publish appropriate ports and
+tell Pure-FTPd what address and ports to use.
+
+First of all, you'll need to tell Pure-FTPd what address to tell
+clients to connect to when using passive mode using `-P` (force passive
+IP) option (by default it will use the container's address which is
+private and only accessible from the host).
+
+You also need to choose a range of ports for data channels, say you
+want to support 10 concurrent users, pick 10 ports like 30000-30009 and
+pass that to `docker run` as `--publish` option as well as `-p`
+(passive port range) to `pureftpd`.
+
+Example:
+
+    docker run -d \
+      -p 21:21 -p 30000-30009:30000-30009 --name=ftpd \
+      gimoh/pureftpd \
+      -c 10 -p 30000:30002 -P PUBLIC_DNS_OR_IP
+
+If you're running the container in a cloud environment it may be able
+to figure out the public address itself, but you have to indicate
+that's what you want by passing env variable `PURE_IN_CLOUD`, e.g.:
+
+    docker run -d \
+      -p 21:21 -p 30000-30009:30000-30009 --name=ftpd \
+      --env=PURE_IN_CLOUD=docker \
+      gimoh/pureftpd \
+      -c 10 -p 30000:30002

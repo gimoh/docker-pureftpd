@@ -69,6 +69,15 @@ for opt in ${PURE_USERS}; do
 done
 IFS="${orig_ifs}"
 
+case "${PURE_IN_CLOUD:-}" in
+  docker)
+    : ${DOCKERCLOUD_CONTAINER_FQDN:?is the container running in docker cloud?}
+    append_opts -P "${DOCKERCLOUD_CONTAINER_FQDN}"
+    ;;
+  '') : ;;
+  *) echo "cloud ${PURE_IN_CLOUD} not supported yet" >&2; exit 2 ;;
+esac
+
 # Save location of virt user password database, for the deamon as well
 # as for adduser-ftp script and pure-pw run from interactive shell
 # started via `docker exec -it this_container sh -l`
