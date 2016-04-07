@@ -43,11 +43,11 @@ append_opts() { # OPTS...
 
 # Main
 
-if [[ ! -d ${PURE_CONFDIR} ]]; then
+if [[ ! -d "${PURE_CONFDIR}" ]]; then
   mkdir "${PURE_CONFDIR}"
 fi
 
-if [[ ${PURE_VIRT_USER_HOME_PATTERN} ]]; then
+if [[ -n "${PURE_VIRT_USER_HOME_PATTERN}" ]]; then
   PURE_USERS="${PURE_USERS:+${PURE_USERS}+}virt"
 fi
 
