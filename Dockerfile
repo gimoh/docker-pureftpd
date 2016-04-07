@@ -17,10 +17,25 @@
 FROM alpine:3.3
 MAINTAINER gimoh <gimoh@bitmessage.ch>
 
-RUN printf '%s\n' \
+ENV PUREFTPD_VERSION=1.0.42-r0 \
+    SYSLOG_STDOUT_VERSION=1.1.1
+
+RUN url_join() { local pifs="${IFS}"; IFS=/; echo "$*"; IFS="${pifs}"; } \
+    && printf '%s\n' \
       '@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing' \
       >> /etc/apk/repositories \
-    && apk add --update pure-ftpd@testing=1.0.42-r0 && rm -rf /var/cache/apk/*
+    && apk update \
+    && apk add pure-ftpd@testing="${PUREFTPD_VERSION}" \
+    && apk add curl=7.47.0-r0 \
+    && install -d -o root -g root -m 755 /usr/local/sbin \
+    && curl -ksL \
+      "$(url_join \
+        https://github.com/timonier/syslog-stdout/releases/download \
+        "v${SYSLOG_STDOUT_VERSION}" \
+        syslog-stdout.tar.gz)" \
+      |tar -xvzf - -C /usr/local/sbin \
+    && apk del --purge curl \
+    && rm -rf /var/cache/apk/*
 
 # user ftpv and /srv/ftp for virtual users, user ftp and /var/lib/ftp
 # for anonymous; these are separate so anonymous cannot read/write

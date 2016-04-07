@@ -87,4 +87,6 @@ printf 'export %s="%s"\n' \
   PURE_DBFILE "${PURE_DBFILE}" \
   > /etc/profile.d/pure_settings.sh
 
+/usr/local/sbin/syslog-stdout &
+
 exec /usr/sbin/pure-ftpd ${PURE_OPTS} "$@"
