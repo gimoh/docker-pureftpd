@@ -20,6 +20,14 @@ set -e
 
 : ${PURE_VIRT_USER_HOME_PATTERN:=/srv/ftp/@USER@/./}
 
+# work around an issue where this script is used from interactive shell
+# started as "sh" (and not "sh -l") so it doesn't load profile (which
+# means it doesn't load PureFTP settings saved in init); this happens
+# e.g. when starting a shell from docker cloud web UI
+if [[ -z "${PURE_PASSWDFILE}" || -z "${PURE_DBFILE}" ]]; then
+  . /etc/profile.d/pure_settings.sh
+fi
+
 u_name="${1:?specify username}"
 u_home="${PURE_VIRT_USER_HOME_PATTERN//@USER@/${u_name}}"
 shift
