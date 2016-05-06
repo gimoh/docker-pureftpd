@@ -177,6 +177,56 @@ i.e. it is equivalent to:
 You can add users with `pure-pw useradd` directly but you'll need to
 make sure to set system user and create any necessary directories.
 
+### Maintaining virtual users based on JSON config
+
+A companion image `gimoh/pureftpd-auto-users` can be used to maintain
+virtual user accounts based on a JSON/YAML config stored on Amazon S3.
+
+The config should have following schema:
+
+    {
+      "users": [
+        {
+          "username": "str",
+          "password": "str"
+        }
+      ]
+    }
+
+any other keys in the user dict are ignored.
+
+To be able to use this image, the `ftpd` container needs to have
+`/etc/pureftpd` mounted as a volume and then you can run it like:
+
+    docker run \
+      -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION \
+      --volumes-from=ftpd
+      --rm gimoh/pureftpd-auto-users \
+      s3://bucket/key.json
+
+The key (filename) needs to have an extension `.json`, `.yml` or
+`.yaml`, or alternatively have `Content-Type` in metadata set to
+either `application/json` or `application/yaml`.
+
+This will create any accounts that are missing from the database and
+remove any that are in database but not in config.  To skip deleting
+accounts pass `--no-delete` flag.
+
+There is also `--dry-run` if you just want to see what would have been
+done.  To see all options pass `--help`.
+
+    docker run \
+      -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION \
+      --volumes-from=ftpd
+      --rm gimoh/pureftpd-auto-users \
+      s3://bucket/key.json \
+      --dry-run --no-delete
+
+The S3 bucket setup is outside of scope here, but obviously since this
+file contains passwords it should be adequately protected using ACLs or
+policies.  I use a dedicated IAM user with attached policy which only
+allows read access on that bucket.
+
 ### Passive FTP ports
 
 If you want the FTP service to be accessible from outside the host with
