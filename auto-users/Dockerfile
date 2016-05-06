@@ -26,6 +26,5 @@ RUN apk add --update python3=3.5.1-r0 \
     && pip3 install boto3==1.2.3 docopt==0.6.2 shell.py==0.5.3 \
     && rm -rf /root/.cache /usr/lib/python*/ensurepip /var/cache/apk/*
 
+COPY dkr-init.sh /usr/local/sbin/dkr-init
 COPY auto-users.py /usr/local/bin/auto-users
-
-ENTRYPOINT ["/usr/local/bin/auto-users"]

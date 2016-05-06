@@ -18,7 +18,8 @@ FROM alpine:3.3
 MAINTAINER gimoh <gimoh@bitmessage.ch>
 
 ENV PUREFTPD_VERSION=1.0.42-r0 \
-    SYSLOG_STDOUT_VERSION=1.1.1
+    SYSLOG_STDOUT_VERSION=1.1.1 \
+    PURE_CONFDIR=/etc/pureftpd
 
 RUN url_join() { local pifs="${IFS}"; IFS=/; echo "$*"; IFS="${pifs}"; } \
     && printf '%s\n' \
@@ -43,6 +44,7 @@ RUN url_join() { local pifs="${IFS}"; IFS=/; echo "$*"; IFS="${pifs}"; } \
 RUN adduser -D -h /dev/null -s /etc ftpv \
     && install -d -o root -g root -m 755 ~ftp /srv/ftp
 
+COPY pure_defaults.sh /etc/profile.d/
 COPY dkr-init.sh /usr/local/sbin/dkr-init
 COPY adduser-ftp.sh /usr/local/bin/adduser-ftp
 

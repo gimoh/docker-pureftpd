@@ -26,13 +26,7 @@ set -e
 set -x
 
 
-# Defaults
-: ${PURE_CONFDIR:=/etc/pureftpd} \
-  ${PURE_DBFILE:=${PURE_CONFDIR}/passwd.pdb} \
-  ${PURE_LDAP_CONFIG:=${PURE_CONFDIR}/ldap.conf} \
-  ${PURE_MYSQL_CONFIG:=${PURE_CONFDIR}/mysql.conf} \
-  ${PURE_PASSWDFILE:=${PURE_CONFDIR}/passwd} \
-  ${PURE_PGSQL_CONFIG:=${PURE_CONFDIR}/pgsql.conf}
+. /etc/profile.d/pure_defaults.sh
 PURE_OPTS=""
 
 
@@ -78,14 +72,20 @@ case "${PURE_IN_CLOUD:-}" in
   *) echo "cloud ${PURE_IN_CLOUD} not supported yet" >&2; exit 2 ;;
 esac
 
-# Save location of virt user password database, for the deamon as well
-# as for adduser-ftp script and pure-pw run from interactive shell
-# started via `docker exec -it this_container sh -l`
+# Export location of virt user password database, for the deamon
 export PURE_PASSWDFILE PURE_DBFILE
+
+# Preserve any run-time overrides (i.e. `docker run --env`) for shells
+# started with `docker exec` and other co-operating containers that use
+# the same volumes as ftpd.  This is so that e.g. adduser-ftp script
+# and pure-pw use the same settings as the FTPd.
 printf 'export %s="%s"\n' \
-  PURE_PASSWDFILE "${PURE_PASSWDFILE}" \
   PURE_DBFILE "${PURE_DBFILE}" \
-  > /etc/profile.d/pure_settings.sh
+  PURE_LDAP_CONFIG "${PURE_LDAP_CONFIG}" \
+  PURE_MYSQL_CONFIG "${PURE_MYSQL_CONFIG}" \
+  PURE_PASSWDFILE "${PURE_PASSWDFILE}" \
+  PURE_PGSQL_CONFIG "${PURE_PGSQL_CONFIG}" \
+  > "${PURE_CONFDIR}/pure_settings.sh"
 
 /usr/local/sbin/syslog-stdout &
 
