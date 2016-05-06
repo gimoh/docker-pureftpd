@@ -182,7 +182,6 @@ def _check_call(proc):
     :raises: CalledProcessError if returncode != 0
     """
     if proc.re() != 0:
-        print('proc.re() = {!r}\nproc.cmd_str = {!r}\nproc.stdout() = {!r}\nproc.stderr() = {!r}'.format(proc.re(), proc.cmd_str, proc.stdout(), proc.stderr()))
         raise CalledProcessError(
             proc.re(), proc.cmd_str,
             proc.stdout().decode('utf-8'), proc.stderr().decode('utf-8'))
@@ -209,14 +208,14 @@ class PurePW:
 
         return [l.split('\t')[0] for l in out.splitlines()]
 
-    def adduser(username, password):
+    def adduser(self, username, password):
         """Add a virtual FTP user to PureFTP database"""
         # need to pass a string like 'password\npassword\n'
         pw_str = '\n'.join([password]*2 + [''])
         proc = instream(pw_str).p('adduser-ftp {}'.format(quote(username)))
         _check_call(proc)
 
-    def deluser(username):
+    def deluser(self, username):
         """Remove a virtual FTP user from PureFTP database"""
         _check_call(p('pure-pw userdel {}'.format(quote(username))))
 
