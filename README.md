@@ -137,7 +137,9 @@ Note that it's better to also use `PURE_VIRT_USER_HOME_PATTERN` like:
       gimoh/pureftpd \
       -j
 
-Also note you need to add users (as in [Basic usage](#basic-usage)).
+Also note you need to add users (as in [Basic usage](#basic-usage) or
+[Adding virtual users](#adding-virtual-users) or
+[Maintaining virtual users based on JSON config](#maintaining-virtual-users-based-on-json-config)).
 
 ##### LDAP only
 
@@ -152,6 +154,26 @@ Run with LDAP users only and auto-create home directories:
 
 You need to have a file `ldap.conf` in `/etc/pureftpd` volume that
 defines LDAP server connection details.
+
+##### Virtual with automatic maintenance
+
+Here's a full example combining [Virtual only](#virtual-only),
+[Volumes](#volumes) and [Maintaining virtual users based on JSON config](#maintaining-virtual-users-based-on-json-config)):
+
+    docker run -d \
+      -e PURE_USERS=isolated+noanon+virt \
+      -e PURE_VIRT_USER_HOME_PATTERN=/srv/ftp/@USER@/./@USER@ \
+      --name=ftpd \
+      --volume=/etc/pureftpd \
+      --volume=/srv/ftp \
+      gimoh/pureftpd \
+      -j
+
+    docker run \
+      -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION \
+      --volumes-from=ftpd
+      --rm gimoh/pureftpd-auto-users \
+      s3://bucket/key.json
 
 ### Adding virtual users
 
@@ -259,3 +281,30 @@ that's what you want by passing env variable `PURE_IN_CLOUD`, e.g.:
       --env=PURE_IN_CLOUD=docker \
       gimoh/pureftpd \
       -c 10 -p 30000:30002
+
+## Volumes
+
+The Dockerfile doesn't define any volumes as what you may want to
+preserve depends on usage and purpose.  The following directories
+inside the container are significant:
+
+Path          | Purpose
+--------------|--------------------------------------------------------
+/etc/pureftpd | this is where password DB lives, mount to preserve users between runs
+/var/lib/ftp  | home dir of anonymous user, mount to preserve files uploaded by anonymous
+/srv/ftp      | home root of virtual users, mount to preserve files uploaded by virtual users
+
+Plus any other home directories you create if you use
+unix/LDAP/mysql/etc. user accounts.
+
+Choose the ones you need and pass them when starting the main ftpd
+container, e.g.:
+
+    docker run -d \
+      -e PURE_USERS=isolated+noanon+virt \
+      -e PURE_VIRT_USER_HOME_PATTERN=/srv/ftp/@USER@/./@USER@ \
+      --name=ftpd \
+      --volume=/etc/pureftpd \
+      --volume=/srv/ftp \
+      gimoh/pureftpd \
+      -j
