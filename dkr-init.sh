@@ -85,6 +85,7 @@ printf 'export %s="%s"\n' \
   PURE_MYSQL_CONFIG "${PURE_MYSQL_CONFIG}" \
   PURE_PASSWDFILE "${PURE_PASSWDFILE}" \
   PURE_PGSQL_CONFIG "${PURE_PGSQL_CONFIG}" \
+  PURE_VIRT_USER_HOME_PATTERN "${PURE_VIRT_USER_HOME_PATTERN}" \
   > "${PURE_CONFDIR}/pure_settings.sh"
 
 /usr/local/sbin/syslog-stdout &
