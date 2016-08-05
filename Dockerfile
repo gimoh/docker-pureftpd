@@ -27,7 +27,7 @@ RUN url_join() { local pifs="${IFS}"; IFS=/; echo "$*"; IFS="${pifs}"; } \
       >> /etc/apk/repositories \
     && apk update \
     && apk add pure-ftpd@testing="${PUREFTPD_VERSION}" \
-    && apk add curl=7.47.0-r0 \
+    && apk add curl=7.49.1-r0 \
     && install -d -o root -g root -m 755 /usr/local/sbin \
     && curl -ksL \
       "$(url_join \
