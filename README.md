@@ -199,6 +199,27 @@ i.e. it is equivalent to:
 You can add users with `pure-pw useradd` directly but you'll need to
 make sure to set system user and create any necessary directories.
 
+### Creating derived image with baked-in users
+
+Normally configuration files are only saved on first start in order to
+allow overriding settings with `docker run` options.  If you want to
+create user accounts at build time make sure to run
+`dkr-init configure` before `adduser-ftp` in your Dockerfile.
+
+This will save settings like location of the password DB which is
+needed so that `adduser-ftp` operates on the right database.
+
+Example Dockerfile:
+
+    FROM gimoh/pureftpd
+
+    RUN dkr-init configure \
+        && (echo -e 'nooon\nnooon') | adduser-ftp ftpuser -m
+
+Note that if you use that, you should avoid overriding options to do
+with config dir or password DB (`PURE_CONFDIR`, `PURE_DBFILE`,
+`PURE_PASSWDFILE`) with `--env` options to `docker run`.
+
 ### Maintaining virtual users based on JSON config
 
 A companion image `gimoh/pureftpd-auto-users` can be used to maintain

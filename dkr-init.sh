@@ -34,11 +34,35 @@ append_opts() { # OPTS...
   PURE_OPTS="${PURE_OPTS:+${PURE_OPTS} }$*"
 }
 
+# Preserve settings stored in environment for shells started with
+# `docker exec` and other co-operating containers that use the same
+# volumes as ftpd.  This is so that e.g. adduser-ftp script and pure-pw
+# use the same settings as the FTPd.
+configure() {
+  if [[ ! -d "${PURE_CONFDIR}" ]]; then
+    mkdir "${PURE_CONFDIR}"
+  fi
+
+  printf 'export %s="%s"\n' \
+    PURE_DBFILE "${PURE_DBFILE}" \
+    PURE_LDAP_CONFIG "${PURE_LDAP_CONFIG}" \
+    PURE_MYSQL_CONFIG "${PURE_MYSQL_CONFIG}" \
+    PURE_PASSWDFILE "${PURE_PASSWDFILE}" \
+    PURE_PGSQL_CONFIG "${PURE_PGSQL_CONFIG}" \
+    PURE_VIRT_USER_HOME_PATTERN "${PURE_VIRT_USER_HOME_PATTERN}" \
+    > "${PURE_CONFDIR}/pure_settings.sh"
+}
+
 
 # Main
 
-if [[ ! -d "${PURE_CONFDIR}" ]]; then
-  mkdir "${PURE_CONFDIR}"
+if [[ ! -e "${PURE_CONFDIR}/pure_settings.sh" || configure == "$1" ]]; then
+  configure
+
+  # We're running as part of build process to pre-configure things.
+  if [[ configure == "$1" ]]; then
+    exit 0
+  fi
 fi
 
 if [[ -n "${PURE_VIRT_USER_HOME_PATTERN}" ]]; then
@@ -71,22 +95,6 @@ case "${PURE_IN_CLOUD:-}" in
   '') : ;;
   *) echo "cloud ${PURE_IN_CLOUD} not supported yet" >&2; exit 2 ;;
 esac
-
-# Export location of virt user password database, for the deamon
-export PURE_PASSWDFILE PURE_DBFILE
-
-# Preserve any run-time overrides (i.e. `docker run --env`) for shells
-# started with `docker exec` and other co-operating containers that use
-# the same volumes as ftpd.  This is so that e.g. adduser-ftp script
-# and pure-pw use the same settings as the FTPd.
-printf 'export %s="%s"\n' \
-  PURE_DBFILE "${PURE_DBFILE}" \
-  PURE_LDAP_CONFIG "${PURE_LDAP_CONFIG}" \
-  PURE_MYSQL_CONFIG "${PURE_MYSQL_CONFIG}" \
-  PURE_PASSWDFILE "${PURE_PASSWDFILE}" \
-  PURE_PGSQL_CONFIG "${PURE_PGSQL_CONFIG}" \
-  PURE_VIRT_USER_HOME_PATTERN "${PURE_VIRT_USER_HOME_PATTERN}" \
-  > "${PURE_CONFDIR}/pure_settings.sh"
 
 /usr/local/sbin/syslog-stdout &
 

@@ -32,3 +32,7 @@ fi
   ${PURE_MYSQL_CONFIG:=${PURE_CONFDIR}/mysql.conf} \
   ${PURE_PASSWDFILE:=${PURE_CONFDIR}/passwd} \
   ${PURE_PGSQL_CONFIG:=${PURE_CONFDIR}/pgsql.conf}
+
+# Mark variables for export so they can be accessed by subprocesses
+export PURE_CONFDIR PURE_DBFILE PURE_LDAP_CONFIG PURE_MYSQL_CONFIG \
+  PURE_PASSWDFILE PURE_PGSQL_CONFIG PURE_VIRT_USER_HOME_PATTERN
