@@ -32,9 +32,6 @@ RUN set -uex \
        musl-dev \
        openssl \
        \
-    && addgroup _pure-ftpd \
-    && adduser -G _pure-ftpd -s /sbin/nologin -h /var/empty -D _pure-ftpd \
-    \
     && cd /tmp \
     && curl -LO https://github.com/timonier/syslog-stdout/releases/download/v"${SYSLOG_STDOUT_VERSION}"/syslog-stdout.tar.gz \
     && echo "${SYSLOG_STDOUT_SHASUM}  syslog-stdout.tar.gz" | sha1sum -c - \
@@ -48,6 +45,7 @@ RUN set -uex \
     \
     && cd /tmp/pure-ftpd-"${PUREFTPD_VERSION}" \
     && ./configure --prefix=/usr \
+      --sysconfdir=/etc/pureftpd \
       --without-humor \
       --without-unicode \
       --with-minimal \
