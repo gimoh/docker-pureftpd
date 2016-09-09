@@ -1,17 +1,17 @@
 #!/bin/sh
 # docker-pureftpd
 # Copyright (C) 2016  gimoh
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -44,12 +44,12 @@ configure() {
   fi
 
   printf 'export %s="%s"\n' \
+    PURE_PASSWDFILE "${PURE_PASSWDFILE}" \
     PURE_DBFILE "${PURE_DBFILE}" \
+    PURE_VIRT_USER_HOME_PATTERN "${PURE_VIRT_USER_HOME_PATTERN}" \
     PURE_LDAP_CONFIG "${PURE_LDAP_CONFIG}" \
     PURE_MYSQL_CONFIG "${PURE_MYSQL_CONFIG}" \
-    PURE_PASSWDFILE "${PURE_PASSWDFILE}" \
     PURE_PGSQL_CONFIG "${PURE_PGSQL_CONFIG}" \
-    PURE_VIRT_USER_HOME_PATTERN "${PURE_VIRT_USER_HOME_PATTERN}" \
     > "${PURE_CONFDIR}/pure_settings.sh"
 }
 
