@@ -45,11 +45,10 @@ RUN set -uex \
     \
     && cd /tmp/pure-ftpd-"${PUREFTPD_VERSION}" \
     && ./configure --prefix=/usr \
-      --sysconfdir=/etc/pureftpd \
+      --sysconfdir="${PURE_CONFDIR}" \
       --without-humor \
-      --without-unicode \
-      --with-minimal \
-      --with-throttling  \
+      --without-inetd \
+      --with-throttling \
       --with-puredb \
       --with-ftpwho \
     && make install-strip \
