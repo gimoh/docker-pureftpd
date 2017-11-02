@@ -130,10 +130,10 @@ auto-create their home directories:
       gimoh/pureftpd \
       -j
 
-Note that it's better to also use `PURE_VIRT_USER_HOME_PATTERN` like:
+Note that it's better to use `PURE_VIRT_USER_HOME_PATTERN` like:
 
     docker run -d \
-      -e PURE_USERS=isolated+noanon+virt \
+      -e PURE_USERS=isolated+noanon \
       -e PURE_VIRT_USER_HOME_PATTERN=/srv/ftp/@USER@/./@USER@ \
       --name=ftpd \
       gimoh/pureftpd \
