@@ -5,6 +5,8 @@ Pure-FTPD in a docker container
 
 A minimal docker image (based on [alpine](https://hub.docker.com/_/alpine/)) containing Pure-FTPD server (minimal build) and a couple of utility programs/scripts.
 
+Note that this image uses the minimal [`pure-ftpd` package](https://pkgs.alpinelinux.org/package/edge/testing/x86_64/pure-ftpd) included in Alpine, which means LDAP, PostgreSQL (PGSQL) and MySQL support isn't available. There is currently an open request against Alpine to [add another version of pure-ftpd package with all features](https://bugs.alpinelinux.org/issues/7948).
+
 ## Usage
 
 ### Basic usage
